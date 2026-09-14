@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clubes Escolares 2026 | DRELM</title>
+<link rel="stylesheet" href="styles.css?v=20260914-03">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body>
+<div class="sticky-shell">
+  <header class="hero">
+    <img class="logo" src="assets/logo_drelm.png" alt="DRELM">
+    <div class="brand"><h1>Clubes Escolares 2026</h1><p>Tablero de resultados y seguimiento</p></div>
+    <div class="hero-note">Ficha del Director y Ficha del Docente Asesor se analizan de manera independiente.</div>
+  </header>
+  <nav class="tabs">
+    <button class="tab active" data-tab="director">Director</button>
+    <button class="tab" data-tab="asesor">Docente asesor</button>
+    <button class="tab" data-tab="ficha">Ficha técnica</button>
+    <a class="report-link" href="documentos/Informe_Tecnico_Clubes_Escolares_2026.pdf" target="_blank" download>Descargar informe técnico</a><span class="version-chip">Versión 3 · Fichas oficiales</span>
+  </nav>
+  <div class="filters">
+    <label>UGEL<select id="fUgel"><option value="">Todas</option></select></label>
+    <label>Modalidad<select id="fModalidad"><option value="">Todas</option></select></label>
+    <label>Gestión<select id="fGestion"><option value="">Todas</option></select></label>
+    <label>Área del club<select id="fArea"><option value="">Todas</option></select></label>
+    <label class="search">Institución educativa / código local<input id="fIE" placeholder="Buscar por nombre de IE o código local..."></label>
+    <button id="clearFilters">Limpiar</button>
+  </div>
+</div>
+
+<main>
+<section id="director" class="panel active">
+  <div class="section blue">
+    <div class="num">1</div><div><h2>INFORMACIÓN DE LA INSTITUCIÓN EDUCATIVA</h2><p>Caracterización de las IIEE que registraron información en el formulario del Director.</p></div>
+  </div>
+  <div id="kpi1" class="kpis six"></div>
+  <div class="grid4 executive-grid">
+    <article class="card chart-card"><div class="chart-head"><div><h3>Registros por UGEL</h3><p>Cantidad y participación sobre el total filtrado</p></div><span class="chart-badge">N + %</span></div><div class="chartbox"><canvas id="chartUgel"></canvas></div></article>
+    <article class="card chart-card"><div class="chart-head"><div><h3>Distribución por modalidad</h3><p>Participación de EBR, EBA y EBE</p></div><span class="chart-badge">N + %</span></div><div class="chartbox"><canvas id="chartModalidad"></canvas></div></article>
+    <article class="card chart-card"><div class="chart-head"><div><h3>Distribución por gestión</h3><p>Composición según tipo de gestión</p></div><span class="chart-badge">N + %</span></div><div class="chartbox"><canvas id="chartGestion"></canvas></div></article>
+    <article class="card chart-card"><div class="chart-head"><div><h3>Clubes declarados por área</h3><p>Cantidad y participación sobre los clubes declarados</p></div><span class="chart-badge">N + %</span></div><div class="chartbox"><canvas id="chartArea"></canvas></div></article>
+  </div>
+
+  <div class="section slate">
+    <div class="num">2</div><div><h2>DATOS DEL DIRECTOR DE LA IE</h2><p>Nombre del director vinculado a la institución educativa. No se publican teléfono ni correo electrónico.</p></div>
+  </div>
+  <article class="card">
+    <div class="toolbar"><h3>Directores por institución educativa</h3><button class="excel" id="exportDirectores">Exportar Excel</button></div>
+    <div class="tablewrap"><table id="tableDirectores"></table></div>
+  </article>
+
+  <div class="section blue">
+    <div class="num">3</div><div><h2>IMPLEMENTACIÓN DE CLUBES ESCOLARES EN LA IE – EBR/EBA/EBE</h2><p>Análisis organizado según la ruta de preguntas de la Ficha del Director: 3.1 → 3.2 → 3.3/3.4 o registro de clubes implementados.</p></div>
+  </div>
+  <div id="kpi3" class="kpis five"></div>
+  <div class="subtabs">
+    <button class="subtab active" data-s3="resumen">Ruta de implementación</button>
+    <button class="subtab" data-s3="31">3.1 Recibió información</button>
+    <button class="subtab" data-s3="32">3.2 Implementa algún club</button>
+    <button class="subtab" data-s3="33">3.3 Planifica implementar</button>
+    <button class="subtab" data-s3="34">3.4 Tipo planificado</button>
+  </div>
+  <div id="section3content"></div>
+
+  <article class="card">
+    <div class="toolbar">
+      <div><h3>Detalle por institución educativa</h3><small>Incluye nombre del director; excluye teléfono y correo.</small></div>
+      <div class="actions"><button class="excel" id="exportIE">Exportar Excel</button><button class="pdf" id="printIE">Exportar PDF</button></div>
+    </div>
+    <div class="tablewrap"><table id="tableIE"></table></div>
+  </article>
+
+  <div class="section green">
+    <div class="num">4</div><div><h2>GESTIÓN DE LOS CLUBES ESCOLARES EBR/EBA/EBE</h2><p>Resultados de las preguntas 4.1 a 4.7 según la Ficha del Director. El liderazgo estudiantil se analiza en la sección 3, a nivel de club.</p></div>
+  </div>
+  <div class="subtabs green-tabs" id="q4tabs"></div>
+  <div id="section4content"></div>
+</section>
+
+<section id="asesor" class="panel">
+  <div class="section green">
+    <div class="num">A</div><div><h2>FICHA DEL DOCENTE ASESOR</h2><p>Resultados independientes de la ficha aplicada al docente asesor.</p></div>
+  </div>
+  <div id="kpiA" class="kpis four"></div>
+  <div class="grid2">
+    <article class="card"><h3>Inscripciones declaradas por UGEL</h3><div class="chartbox tall"><canvas id="chartAdvUgel"></canvas></div></article>
+    <article class="card"><h3>Fichas por área del club</h3><div class="chartbox tall"><canvas id="chartAdvArea"></canvas></div></article>
+  </div>
+  <article class="card">
+    <h3>Preguntas 4.1 a 4.8 de la ficha del asesor</h3>
+    <div id="advisorQuestions"></div>
+  </article>
+  <article class="card">
+    <div class="toolbar"><h3>Detalle por institución educativa / club</h3><button class="excel" id="exportAsesor">Exportar Excel</button></div>
+    <div class="tablewrap"><table id="tableAsesor"></table></div>
+  </article>
+</section>
+
+<section id="ficha" class="panel">
+  <div class="section blue"><div class="num">i</div><div><h2>FICHA TÉCNICA</h2><p>Criterios metodológicos del reporte.</p></div></div>
+  <article class="card report-card"><div><h3>Informe Técnico - Clubes Escolares 2026</h3><p>Análisis institucional de implementación, gestión, clubes declarados y ficha del docente asesor.</p></div><a class="report-download" href="documentos/Informe_Tecnico_Clubes_Escolares_2026.pdf" target="_blank" download>Descargar PDF</a></article>
+  <article class="card method">
+    <p><b>Unidad de análisis – Director:</b> registro de directivo e institución educativa según modalidad.</p>
+    <p><b>Unidad de análisis – Asesor:</b> ficha de docente asesor.</p>
+    <p><b>Datos personales:</b> se conserva el nombre del director para identificación institucional; no se publican teléfono, correo ni DNI.</p>
+    <p><b>Preguntas 3.3 y 3.4:</b> figuran en la ficha Word, pero no aparecen como campos de la exportación actual de Mundo IE. No se presentan resultados hasta contar con dichos campos.</p>
+    <p><b>Inscripciones:</b> corresponden a inscripciones declaradas; no necesariamente estudiantes únicos.</p>
+  </article>
+</section>
+</main>
+
+<footer><b>Elaborado por el Equipo de Estadística y Monitoreo - OPP - DRELM</b><span><b>Fuente:</b> Monitoreo Clubes Escolares 2026</span></footer>
+<script src="app.js?v=20260914-03"></script>
+</body></html>
