@@ -5,25 +5,64 @@ const yes=v=>N(v)==='si', fmt=n=>Number(n||0).toLocaleString('es-PE'), pc=(a,b)=
 if(window.ChartDataLabels) Chart.register(ChartDataLabels);
 const UGEL_ORDER=['UGEL 01','UGEL 02','UGEL 03','UGEL 04','UGEL 05','UGEL 06','UGEL 07'];
 const orderedKeys=o=>{let ks=Object.keys(o);return ks.sort((a,b)=>{let ia=UGEL_ORDER.indexOf(a),ib=UGEL_ORDER.indexOf(b);if(ia>=0||ib>=0)return (ia<0?99:ia)-(ib<0?99:ib);return a.localeCompare(b,'es')})};
-fetch('data/clubes.json').then(r=>r.json()).then(d=>{DATA=d;init();render()});
+fetch('data/clubes.json?v=20260914-075',{cache:'no-store'}).then(r=>r.json()).then(d=>{DATA=d;init();render()});
 function fill(sel,vals){vals.forEach(v=>sel.add(new Option(v,v)))}
 function init(){
  const all=[...DATA.director.registros,...DATA.asesor.registros];
+ const corte=DATA.meta?.fecha_corte||'09/09/2026';
+ if($('#cutoffHeader')) $('#cutoffHeader').textContent='Corte: '+corte;
+ if($('#cutoffFooter')) $('#cutoffFooter').textContent='Corte: '+corte;
  fill($('#fUgel'),[...new Set(all.map(x=>x.ugel))].filter(Boolean).sort());
+ updateReiOptionsStable();
  fill($('#fModalidad'),[...new Set(all.map(x=>x.modalidad))].filter(Boolean).sort());
  fill($('#fGestion'),[...new Set(all.map(x=>x.gestion))].filter(Boolean).sort());
  fill($('#fArea'),[...new Set([...DATA.director.clubes,...DATA.asesor.registros].map(x=>x.area))].filter(Boolean).sort());
- ['fUgel','fModalidad','fGestion','fArea'].forEach(id=>$('#'+id).onchange=render);$('#fIE').oninput=render;
- $('#clearFilters').onclick=()=>{['fUgel','fModalidad','fGestion','fArea'].forEach(x=>$('#'+x).value='');$('#fIE').value='';render()};
+ $('#fUgel').onchange=()=>{updateReiOptionsStable();render()};['fRei','fModalidad','fGestion','fArea'].forEach(id=>$('#'+id).onchange=render);$('#fIE').oninput=render;
+ $('#clearFilters').onclick=()=>{['fUgel','fRei','fModalidad','fGestion','fArea'].forEach(x=>$('#'+x).value='');$('#fIE').value='';render()};
  $$('.tab').forEach(b=>b.onclick=()=>{current=b.dataset.tab;$$('.tab').forEach(x=>x.classList.toggle('active',x===b));$$('.panel').forEach(x=>x.classList.toggle('active',x.id===current));render()});
  $$('.subtab[data-s3]').forEach(b=>b.onclick=()=>{s3=b.dataset.s3;$$('.subtab[data-s3]').forEach(x=>x.classList.toggle('active',x===b));renderSection3()});
- $('#exportDirectores').onclick=()=>exportTable('directores');$('#exportIE').onclick=()=>exportTable('ie');$('#exportAsesor').onclick=()=>exportTable('asesor');$('#printIE').onclick=()=>window.print();
+ $('#exportDirectores').onclick=()=>exportTable('directores');$('#exportIE').onclick=()=>exportTable('ie');$('#exportAsesor').onclick=()=>exportTable('asesor');if($('#exportClubes'))$('#exportClubes').onclick=()=>exportTable('clubes');$('#exportClubes').onclick=()=>exportTable('clubes');$('#printIE').onclick=()=>window.print();
  buildQ4Tabs();
 }
-function F(){return {u:$('#fUgel').value,m:$('#fModalidad').value,g:$('#fGestion').value,a:$('#fArea').value,q:N($('#fIE').value)}}
-function ok(x,f){return(!f.u||x.ugel===f.u)&&(!f.m||x.modalidad===f.m)&&(!f.g||x.gestion===f.g)&&(!f.q||N((x.ie||'')+' '+(x.codigo_local||'')).includes(f.q))}
+
+function updateReiOptionsStable(){
+ const sel=$('#fRei'); if(!sel||!DATA)return;
+ const ug=$('#fUgel')?.value||'';
+ const rows=[...(DATA.director?.registros||[]),...(DATA.asesor?.registros||[])];
+ const scoped=rows.filter(x=>!ug||x.ugel===ug);
+ const vals=[...new Set(scoped.map(x=>(x.rei||'').trim()).filter(Boolean))]
+   .sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
+ const hasSin=scoped.some(x=>!(x.rei||'').trim());
+ const current=sel.value;
+ sel.innerHTML='<option value="">Todas las REI</option>'
+   +(hasSin?'<option value="__SIN_REI__">Sin REI</option>':'')
+   +vals.map(v=>`<option value="${v}">${v}</option>`).join('');
+ if(current==='__SIN_REI__'&&hasSin) sel.value=current;
+ else if(vals.includes(current)) sel.value=current;
+ else sel.value='';
+}
+function matchReiStable(x,r){
+ if(!r)return true;
+ if(r==='__SIN_REI__')return !(x.rei||'').trim();
+ return (x.rei||'').trim()===r;
+}
+
+function F(){return {u:$('#fUgel').value||'',r:$('#fRei').value||'',m:$('#fModalidad').value||'',g:$('#fGestion').value||'',a:$('#fArea').value||'',q:N($('#fIE').value||'')}}
+function ok(x,f){return(!f.u||x.ugel===f.u)&&matchReiStable(x,f.r)&&(!f.m||x.modalidad===f.m)&&(!f.g||x.gestion===f.g)&&(!f.q||N((x.ie||'')+' '+(x.codigo_local||'')+' '+(x.club||'')).includes(f.q))}
 function group(rows,key,val=()=>1){let m={};rows.forEach(x=>{let k=x[key]||'Sin dato';m[k]=(m[k]||0)+val(x)});return m}
-function kpi(label,value,sub,pctv){return `<div class="kpi"><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub||''}</div>${pctv!==undefined?`<div class="progress"><i style="width:${Math.min(100,pctv)}%"></i></div>`:''}</div>`}
+function kpi(label,value,sub,pctv){
+ const l=N(label);let icon='📊';
+ if(l.includes('instituc'))icon='🏫';
+ else if(l.includes('ugel'))icon='🏢';
+ else if(l.includes('modal'))icon='🎓';
+ else if(l.includes('gestion'))icon='⚙️';
+ else if(l.includes('local'))icon='📍';
+ else if(l.includes('club'))icon='🏅';
+ else if(l.includes('ficha'))icon='📋';
+ else if(l.includes('inscrip'))icon='🧑‍🎓';
+ else if(l.includes('promedio'))icon='📈';
+ return `<div class="kpi"><span class="kpi-icon">${icon}</span><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub||''}</div>${pctv!==undefined?`<div class="progress"><i style="width:${Math.min(100,pctv)}%"></i></div>`:''}</div>`
+}
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
 function draw(id,type,labels,vals,label,totalOverride){
  destroyChart(id);
@@ -144,6 +183,12 @@ function drawStacked100(id,labels,yesVals,noVals){
  });
 }
 
+
+function drawAdvanceStable(id,labels,regVals,metaVals){
+ const vals=labels.map((_,i)=>metaVals[i]?+(regVals[i]*100/metaVals[i]).toFixed(1):0);
+ draw(id,'bar',labels,vals,'Avance',100);
+}
+
 function table(el,h,rows){el.innerHTML='<thead><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(v=>`<td>${v??''}</td>`).join('')+'</tr>').join('')+'</tbody>'}
 function render(){if(!DATA)return;if(current==='director')renderDirector();if(current==='asesor')renderAsesor()}
 function filteredDirector(){
@@ -166,9 +211,33 @@ function renderDirector(){
  let gg=group(regs,'gestion');draw('chartGestion','doughnut',Object.keys(gg),Object.values(gg),'Gestión',regs.length);
  let ga=group(clubs,'area'), gal=Object.keys(ga).sort((a,b)=>ga[b]-ga[a]);draw('chartArea','bar',gal,gal.map(k=>ga[k]),'Clubes',clubs.length);
  let unique=[...new Map(regs.map(x=>[x.codigo_local+'|'+x.modalidad,x])).values()];
- table($('#tableDirectores'),['UGEL','Código local','Institución educativa','Modalidad','Gestión','Director'],
-   unique.map(x=>[x.ugel,x.codigo_local,x.ie,x.modalidad,x.gestion,x.director]));
+ table($('#tableDirectores'),['UGEL','REI','Núcleo REI','Código local','Institución educativa','Modalidad','Gestión','Director'],
+   unique.map(x=>[x.ugel,x.rei||'Sin REI',x.rei_nucleo||'',x.codigo_local,x.ie,x.modalidad,x.gestion,x.director]));
  renderSection3();renderSection4();
+ const allRegs=filteredDirector().regs;
+ const mf=F();
+ const metaRows=(DATA.meta_ie||[]).filter(x=>
+   (!mf.u||x.ugel===mf.u) &&
+   matchReiStable(x,mf.r) &&
+   (!mf.m||x.modalidad===mf.m) &&
+   (!mf.g||x.gestion===mf.g) &&
+   (!mf.q||N((x.ie||'')+' '+(x.codigo_local||'')).includes(mf.q))
+ );
+ const distinctCount=(rows,u)=>new Set(rows.filter(x=>x.ugel===u).map(x=>x.codigo_local).filter(Boolean)).size;
+ const labs=UGEL_ORDER.filter(u=>distinctCount(metaRows,u)>0||distinctCount(allRegs,u)>0);
+ const regVals=labs.map(u=>distinctCount(allRegs,u));
+ const metaVals=labs.map(u=>distinctCount(metaRows,u));
+ const totalMeta=metaVals.reduce((a,b)=>a+b,0),totalReg=regVals.reduce((a,b)=>a+b,0),totalPend=Math.max(0,totalMeta-totalReg);
+ const tRows=labs.map((u,i)=>[u,metaVals[i],regVals[i],Math.max(0,metaVals[i]-regVals[i]),metaVals[i]?pc(regVals[i],metaVals[i])+'%':'—']);
+ tRows.push(['TOTAL DRELM',totalMeta,totalReg,totalPend,totalMeta?pc(totalReg,totalMeta)+'%':'—']);
+ table($('#tableMetaUgel'),['UGEL','Meta IE','IE registradas','Pendientes','% avance'],tRows);
+ if($('#sumMeta'))$('#sumMeta').textContent=fmt(totalMeta);
+ if($('#sumReg'))$('#sumReg').textContent=fmt(totalReg);
+ if($('#sumPend'))$('#sumPend').textContent=fmt(totalPend);
+ if($('#sumPct'))$('#sumPct').textContent=(totalMeta?pc(totalReg,totalMeta):'0.0')+'%';
+ drawAdvanceStable('chartAvanceUgel',labs,regVals,metaVals);
+ renderClubDetailStable();
+
 }
 function renderSection3(){
  let {regs,clubs}=filteredDirector(), info=regs.filter(x=>yes(x.q31)).length, imp=regs.filter(x=>yes(x.q32)).length, noimp=regs.filter(x=>N(x.q32)==='no').length;
@@ -250,8 +319,8 @@ function renderSection3(){
    drawStacked100('s3detail',labs,labs.map(k=>gy[k]||0),labs.map(k=>gn[k]||0));
  }
  let byLocal={};clubs.forEach(c=>byLocal[c.codigo_local]=(byLocal[c.codigo_local]||0)+1);
- table($('#tableIE'),['UGEL','Código local','Institución educativa','Director','Modalidad','Gestión','Recibió info. (3.1)','Implementa (3.2)','Planifica (3.3)','Tipo planificado (3.4)','Total clubes'],
-   regs.map(x=>[x.ugel,x.codigo_local,x.ie,x.director,x.modalidad,x.gestion,x.q31,x.q32,'No disponible','No disponible',byLocal[x.codigo_local]||0]));
+ table($('#tableIE'),['UGEL','REI','Código local','Institución educativa','Director','Modalidad','Gestión','Recibió info. (3.1)','Implementa (3.2)','Planifica (3.3)','Tipo planificado (3.4)','Total clubes'],
+   regs.map(x=>[x.ugel,x.rei||'Sin REI',x.codigo_local,x.ie,x.director,x.modalidad,x.gestion,x.q31,x.q32,'No disponible','No disponible',byLocal[x.codigo_local]||0]));
 }
 const Q4DIRECTOR=[
  ['q41','4.1','Encuestas a estudiantes y docentes'],
@@ -289,22 +358,74 @@ function renderSection4(){
    let gt=group(regs,'ugel'),gy=group(regs,'ugel',x=>yes(x[field])?1:0),gn=group(regs,'ugel',x=>N(x[field])==='no'?1:0),labs=orderedKeys(gt);drawStackedYesNo('q4detail',labs,labs.map(k=>gy[k]||0),labs.map(k=>gn[k]||0));
  }
 }
+
+function renderClubes(){
+ let f=F(), rows=DATA.director.clubes.filter(x=>ok(x,f)&&(!f.a||x.area===f.a));
+ let locales=new Set(rows.map(x=>x.codigo_local).filter(Boolean)).size;
+ let reis=new Set(rows.map(x=>x.rei).filter(Boolean)).size;
+ let monY=rows.filter(x=>yes(x.monitoreo_asesor)).length, monValid=rows.filter(x=>N(x.monitoreo_asesor)==='si'||N(x.monitoreo_asesor)==='no').length;
+ let lidY=rows.filter(x=>yes(x.liderazgo_estudiantil)).length, lidValid=rows.filter(x=>N(x.liderazgo_estudiantil)==='si'||N(x.liderazgo_estudiantil)==='no').length;
+ $('#kpiClubes').innerHTML=[
+   kpi('Clubes declarados',fmt(rows.length),'Una fila por club'),
+   kpi('Locales educativos',fmt(locales),'Con al menos un club'),
+   kpi('REI representadas',fmt(reis),'Según código local'),
+   kpi('Monitoreados',fmt(monY),`${pc(monY,monValid)}% de respuestas válidas`,+pc(monY,monValid)),
+   kpi('Liderazgo estudiantil',fmt(lidY),`${pc(lidY,lidValid)}% de respuestas válidas`,+pc(lidY,lidValid))
+ ].join('');
+ let ga=group(rows,'area'), gal=Object.keys(ga).sort((a,b)=>ga[b]-ga[a]);
+ draw('chartClubArea','bar',gal,gal.map(k=>ga[k]),'Clubes',rows.length);
+ let gm=group(rows,'modalidad'); draw('chartClubModalidad','doughnut',Object.keys(gm),Object.values(gm),'Modalidad',rows.length);
+ let gc=group(rows,'condicion_laboral'), gcl=Object.keys(gc).filter(k=>k!=='Sin dato'&&k).sort((a,b)=>gc[b]-gc[a]);
+ draw('chartClubCond','bar',gcl,gcl.map(k=>gc[k]),'Clubes',gcl.reduce((s,k)=>s+gc[k],0));
+ let gr=group(rows.filter(x=>x.rei),'rei'), grl=Object.keys(gr).sort((a,b)=>gr[b]-gr[a]).slice(0,12);
+ draw('chartClubRei','bar',grl,grl.map(k=>gr[k]),'Clubes',grl.reduce((s,k)=>s+gr[k],0));
+ table($('#tableClubes'),
+   ['UGEL','REI','Núcleo REI','Código local','Institución educativa','Modalidad','Gestión','Director','Nombre del club','Área','Tipo de club','Nivel/Ciclo','Código modular','Docente asesor','Condición laboral','Usa horas de atención','Horario','Liderazgo estudiantil','Monitoreo al asesor'],
+   rows.map(x=>[x.ugel,x.rei||'Sin REI',x.rei_nucleo||'',x.codigo_local,x.ie,x.modalidad,x.gestion,x.director,x.club,x.area,x.tipo,x.nivel_ciclo,x.codigo_modular,x.docente_asesor,x.condicion_laboral,x.usa_horas_atencion,x.horario,x.liderazgo_estudiantil,x.monitoreo_asesor])
+ );
+}
+
+
+function renderClubDetailStable(){
+ const {clubs}=filteredDirector();
+ const el=$('#tableClubes'); if(!el)return;
+ table(el,
+ ['UGEL','REI','Núcleo REI','Código local','Institución educativa','Modalidad','Gestión','Nombre del club','Área','Tipo de club','Nivel/Ciclo','Código modular','Docente asesor','Condición laboral','Usa horas de atención','Horario','Liderazgo estudiantil','Monitoreo al asesor'],
+ clubs.map(x=>[x.ugel,x.rei||'Sin REI',x.rei_nucleo||'',x.codigo_local,x.ie,x.modalidad,x.gestion,x.club,x.area,x.tipo,x.nivel_ciclo,x.codigo_modular,x.docente_asesor,x.condicion_laboral,x.usa_horas_atencion,x.horario,x.liderazgo_estudiantil,x.monitoreo_asesor])
+ );
+}
+
 function renderAsesor(){
  let f=F(),rows=DATA.asesor.registros.filter(x=>ok(x,f)&&(!f.a||x.area===f.a)),loc=new Set(rows.map(x=>x.codigo_local).filter(Boolean)).size,ins=rows.reduce((s,x)=>s+(+x.inscritos||0),0);
  $('#kpiA').innerHTML=[kpi('Fichas de asesor',fmt(rows.length),'Registros recibidos'),kpi('Locales distintos',fmt(loc),'Con al menos una ficha'),kpi('Inscripciones declaradas',fmt(ins),'No necesariamente estudiantes únicos'),kpi('Promedio por ficha',fmt(rows.length?Math.round(ins/rows.length):0),'Inscripciones')].join('');
+ const dirClubs=DATA.director.clubes.filter(x=>ok(x,f)&&(!f.a||x.area===f.a));
+ const aLabs=UGEL_ORDER.filter(u=>dirClubs.some(x=>x.ugel===u)||rows.some(x=>x.ugel===u));
+ const aMeta=aLabs.map(u=>dirClubs.filter(x=>x.ugel===u).length);
+ const aReg=aLabs.map(u=>rows.filter(x=>x.ugel===u).length);
+ const aTotalMeta=aMeta.reduce((a,b)=>a+b,0),aTotalReg=aReg.reduce((a,b)=>a+b,0),aTotalPend=Math.max(0,aTotalMeta-aTotalReg);
+ const aRows=aLabs.map((u,i)=>[u,aMeta[i],aReg[i],Math.max(0,aMeta[i]-aReg[i]),aMeta[i]?pc(aReg[i],aMeta[i])+'%':'—']);
+ aRows.push(['TOTAL DRELM',aTotalMeta,aTotalReg,aTotalPend,aTotalMeta?pc(aTotalReg,aTotalMeta)+'%':'—']);
+ table($('#tableMetaAsesor'),['UGEL','Meta clubes','Fichas asesor','Pendientes','% avance'],aRows);
+ if($('#sumAMeta'))$('#sumAMeta').textContent=fmt(aTotalMeta);
+ if($('#sumAReg'))$('#sumAReg').textContent=fmt(aTotalReg);
+ if($('#sumAPend'))$('#sumAPend').textContent=fmt(aTotalPend);
+ if($('#sumAPct'))$('#sumAPct').textContent=(aTotalMeta?pc(aTotalReg,aTotalMeta):'0.0')+'%';
+ drawAdvanceStable('chartAvanceAsesor',aLabs,aReg,aMeta);
+
  let gu=group(rows,'ugel',x=>+x.inscritos||0), gul=orderedKeys(gu);draw('chartAdvUgel','bar',gul,gul.map(k=>gu[k]),'Inscripciones',ins);
  let ga=group(rows,'area'), gal=Object.keys(ga).sort((a,b)=>ga[b]-ga[a]);draw('chartAdvArea','bar',gal,gal.map(k=>ga[k]),'Fichas',rows.length);
  let advQ=Q4ASESOR.map(([field,c,t])=>{let y=rows.filter(x=>yes(x[field])).length,n=rows.filter(x=>N(x[field])==='no').length;return [c,t,y,n]});
- $('#advisorQuestions').innerHTML='<table class="simple"><tr><th>Pregunta</th><th>Sí</th><th>No</th><th>% Sí</th></tr>'+advQ.map(r=>`<tr><td>${r[0]} ${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${pc(r[2],r[2]+r[3])}%</td></tr>`).join('')+'</table><div class="chartbox advisor-q-chart"><canvas id="advisorQChart"></canvas></div>';
+ $('#advisorQuestions').innerHTML='<table class="simple"><tr><th>Pregunta</th><th>Sí</th><th>No</th><th>% Sí</th></tr>'+advQ.map(r=>`<tr><td>${r[0]} ${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${pc(r[2],r[2]+r[3])}%</td></tr>`).join('')+'</table>';
  drawStackedYesNo('advisorQChart',advQ.map(r=>r[0]),advQ.map(r=>r[2]),advQ.map(r=>r[3]),true);
- table($('#tableAsesor'),['UGEL','Código local','IE','Modalidad','Gestión','Club','Área','Tipo','Nivel/Ciclo','Inscripciones'],
-   rows.map(x=>[x.ugel,x.codigo_local,x.ie,x.modalidad,x.gestion,x.club,x.area,x.tipo,x.nivel_ciclo,x.inscritos]));
+ table($('#tableAsesor'),['UGEL','REI','Código local','IE','Modalidad','Gestión','Club','Área','Tipo','Nivel/Ciclo','Inscripciones'],
+   rows.map(x=>[x.ugel,x.rei||'Sin REI',x.codigo_local,x.ie,x.modalidad,x.gestion,x.club,x.area,x.tipo,x.nivel_ciclo,x.inscritos]));
 }
 function exportTable(kind){
  let headers,rows,name;
- if(kind==='directores'){let {regs}=filteredDirector();headers=['UGEL','Código local','IE','Modalidad','Gestión','Director'];rows=regs.map(x=>[x.ugel,x.codigo_local,x.ie,x.modalidad,x.gestion,x.director]);name='directores_clubes_escolares.xls'}
- if(kind==='ie'){let {regs,clubs}=filteredDirector(),m={};clubs.forEach(c=>m[c.codigo_local]=(m[c.codigo_local]||0)+1);headers=['UGEL','Código local','IE','Director','Modalidad','Gestión','3.1 Recibió información','3.2 Implementa','3.3 Planifica','3.4 Tipo planificado','Total clubes'];rows=regs.map(x=>[x.ugel,x.codigo_local,x.ie,x.director,x.modalidad,x.gestion,x.q31,x.q32,'No disponible','No disponible',m[x.codigo_local]||0]);name='detalle_ie_clubes_escolares.xls'}
- if(kind==='asesor'){let f=F(),rr=DATA.asesor.registros.filter(x=>ok(x,f)&&(!f.a||x.area===f.a));headers=['UGEL','Código local','IE','Modalidad','Gestión','Club','Área','Tipo','Nivel/Ciclo','Inscripciones'];rows=rr.map(x=>[x.ugel,x.codigo_local,x.ie,x.modalidad,x.gestion,x.club,x.area,x.tipo,x.nivel_ciclo,x.inscritos]);name='detalle_asesores_clubes_escolares.xls'}
+ if(kind==='directores'){let {regs}=filteredDirector();headers=['UGEL','REI','Núcleo REI','Código local','IE','Modalidad','Gestión','Director'];rows=regs.map(x=>[x.ugel,x.rei||'Sin REI',x.rei_nucleo||'',x.codigo_local,x.ie,x.modalidad,x.gestion,x.director]);name='directores_clubes_escolares.xls'}
+ if(kind==='ie'){let {regs,clubs}=filteredDirector(),m={};clubs.forEach(c=>m[c.codigo_local]=(m[c.codigo_local]||0)+1);headers=['UGEL','REI','Código local','IE','Director','Modalidad','Gestión','3.1 Recibió información','3.2 Implementa','3.3 Planifica','3.4 Tipo planificado','Total clubes'];rows=regs.map(x=>[x.ugel,x.rei||'Sin REI',x.codigo_local,x.ie,x.director,x.modalidad,x.gestion,x.q31,x.q32,'No disponible','No disponible',m[x.codigo_local]||0]);name='detalle_ie_clubes_escolares.xls'}
+ if(kind==='asesor'){let f=F(),rr=DATA.asesor.registros.filter(x=>ok(x,f)&&(!f.a||x.area===f.a));headers=['UGEL','REI','Código local','IE','Modalidad','Gestión','Club','Área','Tipo','Nivel/Ciclo','Inscripciones'];rows=rr.map(x=>[x.ugel,x.rei||'Sin REI',x.codigo_local,x.ie,x.modalidad,x.gestion,x.club,x.area,x.tipo,x.nivel_ciclo,x.inscritos]);name='detalle_asesores_clubes_escolares.xls'}
+ if(kind==='clubes'){let f=F(),rr=DATA.director.clubes.filter(x=>ok(x,f)&&(!f.a||x.area===f.a));headers=['UGEL','REI','Núcleo REI','Código local','IE','Modalidad','Gestión','Director','Nombre del club','Área','Tipo de club','Nivel/Ciclo','Código modular','Docente asesor','Condición laboral','Usa horas de atención','Horario','Liderazgo estudiantil','Monitoreo al asesor'];rows=rr.map(x=>[x.ugel,x.rei||'Sin REI',x.rei_nucleo||'',x.codigo_local,x.ie,x.modalidad,x.gestion,x.director,x.club,x.area,x.tipo,x.nivel_ciclo,x.codigo_modular,x.docente_asesor,x.condicion_laboral,x.usa_horas_atencion,x.horario,x.liderazgo_estudiantil,x.monitoreo_asesor]);name='detalle_por_club_clubes_escolares.xls'}
  let html='<table><tr>'+headers.map(h=>`<th>${h}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(v=>`<td>${v??''}</td>`).join('')+'</tr>').join('')+'</table>';
  let blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);
 }

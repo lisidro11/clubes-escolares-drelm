@@ -2,7 +2,7 @@
 .sticky-shell{position:sticky;top:0;z-index:50;background:#fff;box-shadow:0 2px 9px #16314b1a}
 .hero{height:82px;background:linear-gradient(115deg,#064d7a,#07819b);color:#fff;display:flex;align-items:center;padding:8px 3vw;gap:14px}.logo{height:62px;width:auto;border-radius:4px}.brand h1{margin:0;font-size:27px}.brand p{margin:3px 0 0;font-size:13px}.hero-note{margin-left:auto;border:1px solid #ffffff42;border-radius:9px;padding:9px 12px;max-width:330px;font-size:11px;line-height:1.35}
 .tabs{height:46px;padding:6px 3vw;display:flex;gap:8px;border-bottom:1px solid #dae4ee}.tab{border:0;border-radius:8px;background:#eaf0f6;padding:9px 18px;font-weight:800;color:#26405e;cursor:pointer}.tab.active{background:#08719a;color:#fff}
-.filters{padding:10px 3vw 12px;display:grid;grid-template-columns:130px 130px 160px 190px minmax(300px,1fr) 88px;gap:9px;align-items:end;background:#fff}.filters label{font-size:9px;font-weight:800;text-transform:uppercase;color:#38526f}.filters select,.filters input{width:100%;height:35px;margin-top:3px;border:1px solid #cbd8e6;border-radius:7px;background:#fff;padding:7px}.filters button{height:35px;border:0;border-radius:7px;font-weight:800;background:#e8edf3}
+.filters{padding:10px 3vw 12px;display:grid;grid-template-columns:120px 140px 120px 150px 170px minmax(280px,1fr) 88px;gap:9px;align-items:end;background:#fff}.filters label{font-size:9px;font-weight:800;text-transform:uppercase;color:#38526f}.filters select,.filters input{width:100%;height:35px;margin-top:3px;border:1px solid #cbd8e6;border-radius:7px;background:#fff;padding:7px}.filters button{height:35px;border:0;border-radius:7px;font-weight:800;background:#e8edf3}
 main{padding:18px 2.5vw 30px}.panel{display:none}.panel.active{display:block}.section{display:flex;align-items:center;gap:14px;border-radius:11px;padding:9px 13px;margin:10px 0 8px;border:1px solid}.section .num{width:43px;height:43px;border-radius:8px;display:grid;place-items:center;color:#fff;font-size:25px;font-weight:900;flex:0 0 auto}.section h2{margin:0;font-size:19px}.section p{margin:2px 0 0;font-size:11px}.section.blue{background:linear-gradient(90deg,#e8f6ff,#dff3ff);border-color:#b8e3fa;color:#0962b0}.section.blue .num{background:#0878ad}.section.slate{background:linear-gradient(90deg,#eef4f8,#e8f1f8);border-color:#ccdae6;color:#244c70}.section.slate .num{background:#607f9e}.section.green{background:linear-gradient(90deg,#e9faf4,#dff8ee);border-color:#b9ead6;color:#077254}.section.green .num{background:#00886b}
 .kpis{display:grid;gap:9px;margin-bottom:10px}.kpis.six{grid-template-columns:repeat(6,1fr)}.kpis.five{grid-template-columns:repeat(5,1fr)}.kpis.four{grid-template-columns:repeat(4,1fr)}.kpi{background:#fff;border:1px solid #dbe6f0;border-radius:10px;padding:12px}.kpi .label{font-size:10px;font-weight:800;color:#405875}.kpi .value{font-size:25px;font-weight:900;margin:5px 0}.kpi .sub{font-size:9px;color:#7a8da1}.progress{height:8px;background:#e9eef4;border-radius:99px;margin-top:7px;overflow:hidden}.progress i{display:block;height:100%;background:#168ed0;border-radius:99px}
 .grid4{display:grid;grid-template-columns:1.1fr .7fr .7fr 1.05fr;gap:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:#fff;border:1px solid #dce7f0;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px #17334d09}.card h3{margin:0 0 8px;font-size:13px}.card small{color:#73869a}.chartbox{height:225px}.chartbox.tall{height:310px}
@@ -38,3 +38,46 @@ footer{background:#fff;border-top:1px solid #dbe4ed;padding:12px 3vw;display:fle
 .kpi-inline{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.mini-kpi{background:#f7fbfe;border:1px solid #dbe9f3;border-radius:8px;padding:8px 10px;font-size:9px;color:#587083}.mini-kpi b{display:block;font-size:17px;color:#102447;margin-top:2px}
 .chart-callout{font-size:9px;color:#6d8294;margin-top:5px;line-height:1.35}
 @media(max-width:1000px){.route-grid,.profile-grid{grid-template-columns:1fr}}
+
+.club-table{max-height:560px}
+.club-table table{min-width:2100px}
+.club-table th{white-space:nowrap}
+.club-table td{vertical-align:top}
+.cutoff{font-weight:800}
+@media(max-width:1250px){
+  .filters{grid-template-columns:repeat(4,1fr)}
+  .filters .search{grid-column:span 3}
+}
+
+
+/* ===== V7 estable: conserva los gráficos originales ===== */
+.tracking-grid-stable{display:grid;grid-template-columns:minmax(560px,1.15fr) minmax(380px,.85fr);gap:12px;margin:10px 0 12px}
+.compact-table{max-height:310px;overflow:auto}
+.compact-table table{font-size:10px;min-width:620px}
+.compact-table th,.compact-table td{padding:6px 8px}
+.club-detail-integrated{margin-top:12px}
+@media(max-width:1100px){.tracking-grid-stable{grid-template-columns:1fr}}
+
+
+/* ===== V7.5: diseño compacto + gráficos restaurados ===== */
+.hero{height:70px;padding:6px 2.2vw}.logo{height:55px}.brand h1{font-size:25px}.brand p{font-size:12px}
+.tabs{height:42px;padding:5px 2.2vw}.tab{padding:7px 15px}
+.filters{padding:7px 2.2vw 8px;grid-template-columns:115px 140px 120px 145px 170px minmax(260px,1fr) 95px;gap:8px}
+.filters select,.filters input,.filters button{height:34px}
+main{padding:10px 1.8vw 24px}
+.kpi{position:relative;padding:10px 10px 10px 46px;min-height:84px}
+.kpi-icon{position:absolute;left:10px;top:12px;width:28px;height:28px;border-radius:8px;background:#eaf4fb;display:grid;place-items:center;font-size:16px}
+.kpi .value{font-size:23px;margin:3px 0}
+.total-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 8px}
+.total-strip>div{background:#f4f9fd;border:1px solid #d8e8f4;border-radius:8px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.total-strip span{font-size:8px;color:#60778d;font-weight:700}.total-strip b{font-size:13px;color:#0b5785}
+.tracking-grid-stable{grid-template-columns:minmax(620px,1.25fr) minmax(390px,.75fr);gap:10px}
+.compact-table{max-height:300px}
+.advisor-q-grid{display:grid;grid-template-columns:minmax(620px,1.15fr) minmax(420px,.85fr);gap:10px}
+.advisor-q-chart{height:360px!important}
+@media(max-width:1200px){.tracking-grid-stable,.advisor-q-grid{grid-template-columns:1fr}.filters{grid-template-columns:repeat(4,1fr)}.filters .search{grid-column:span 3}}
+@media(max-width:700px){.filters{grid-template-columns:1fr 1fr}.filters .search{grid-column:span 2}.total-strip{grid-template-columns:1fr 1fr}}
+
+/* V7.6: cabecera limpia */
+.hero .brand{flex:1}
+.tabs{align-items:center}

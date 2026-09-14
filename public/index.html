@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Clubes Escolares 2026 | DRELM</title>
-<link rel="stylesheet" href="styles.css?v=20260914-03">
+<link rel="stylesheet" href="styles.css?v=20260914-076">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
@@ -11,22 +11,22 @@
 <div class="sticky-shell">
   <header class="hero">
     <img class="logo" src="assets/logo_drelm.png" alt="DRELM">
-    <div class="brand"><h1>Clubes Escolares 2026</h1><p>Tablero de resultados y seguimiento</p></div>
-    <div class="hero-note">Ficha del Director y Ficha del Docente Asesor se analizan de manera independiente.</div>
-  </header>
+    <div class="brand"><h1>Clubes Escolares 2026</h1><p>Tablero de resultados y seguimiento · <b id="cutoffHeader">Corte: —</b></p></div>
+</header>
   <nav class="tabs">
-    <button class="tab active" data-tab="director">Director</button>
-    <button class="tab" data-tab="asesor">Docente asesor</button>
-    <button class="tab" data-tab="ficha">Ficha técnica</button>
-    <a class="report-link" href="documentos/Informe_Tecnico_Clubes_Escolares_2026.pdf" target="_blank" download>Descargar informe técnico</a><span class="version-chip">Versión 3 · Fichas oficiales</span>
-  </nav>
+    <button class="tab active" data-tab="director">🏠 Director</button>
+        <button class="tab" data-tab="asesor">🧑‍🏫 Docente asesor</button>
+    <button class="tab" data-tab="ficha">📋 Ficha técnica</button>
+    <a class="report-link" href="documentos/Informe_Tecnico_Clubes_Escolares_2026.pdf" target="_blank" download>⬇ Descargar informe técnico</a>
+</nav>
   <div class="filters">
-    <label>UGEL<select id="fUgel"><option value="">Todas</option></select></label>
-    <label>Modalidad<select id="fModalidad"><option value="">Todas</option></select></label>
-    <label>Gestión<select id="fGestion"><option value="">Todas</option></select></label>
-    <label>Área del club<select id="fArea"><option value="">Todas</option></select></label>
-    <label class="search">Institución educativa / código local<input id="fIE" placeholder="Buscar por nombre de IE o código local..."></label>
-    <button id="clearFilters">Limpiar</button>
+    <label>🏢 UGEL<select id="fUgel"><option value="">Todas</option></select></label>
+    <label>🔗 REI<select id="fRei"><option value="">Todas las REI</option></select></label>
+    <label>📚 Modalidad<select id="fModalidad"><option value="">Todas</option></select></label>
+    <label>👥 Gestión<select id="fGestion"><option value="">Todas</option></select></label>
+    <label>⚽ Área del club<select id="fArea"><option value="">Todas</option></select></label>
+    <label class="search">🔎 Institución educativa / código local<input id="fIE" placeholder="Buscar por nombre de IE o código local..."></label>
+    <button id="clearFilters">🧹 Limpiar</button>
   </div>
 </div>
 
@@ -36,6 +36,22 @@
     <div class="num">1</div><div><h2>INFORMACIÓN DE LA INSTITUCIÓN EDUCATIVA</h2><p>Caracterización de las IIEE que registraron información en el formulario del Director.</p></div>
   </div>
   <div id="kpi1" class="kpis six"></div>
+  <div class="tracking-grid-stable">
+    <article class="card">
+      <div class="toolbar"><div><h3>Seguimiento del registro por UGEL</h3><small>Meta, registro y porcentaje de avance.</small></div><span class="chart-badge">Meta + registro + %</span></div>
+      <div class="total-strip">
+              <div><span>Total meta</span><b id="sumMeta">—</b></div>
+              <div><span>IE registradas</span><b id="sumReg">—</b></div>
+              <div><span>Pendientes</span><b id="sumPend">—</b></div>
+              <div><span>Avance DRELM</span><b id="sumPct">—</b></div>
+            </div>
+            <div class="tablewrap compact-table"><table id="tableMetaUgel"></table></div>
+    </article>
+    <article class="card">
+      <div class="chart-head"><div><h3>Avance por UGEL</h3><p>Porcentaje de avance respecto de la meta disponible.</p></div><span class="chart-badge">N + %</span></div>
+      <div class="chartbox"><canvas id="chartAvanceUgel"></canvas></div>
+    </article>
+  </div>
   <div class="grid4 executive-grid">
     <article class="card chart-card"><div class="chart-head"><div><h3>Registros por UGEL</h3><p>Cantidad y participación sobre el total filtrado</p></div><span class="chart-badge">N + %</span></div><div class="chartbox"><canvas id="chartUgel"></canvas></div></article>
     <article class="card chart-card"><div class="chart-head"><div><h3>Distribución por modalidad</h3><p>Participación de EBR, EBA y EBE</p></div><span class="chart-badge">N + %</span></div><div class="chartbox"><canvas id="chartModalidad"></canvas></div></article>
@@ -63,6 +79,13 @@
     <button class="subtab" data-s3="34">3.4 Tipo planificado</button>
   </div>
   <div id="section3content"></div>
+  <article class="card club-detail-integrated">
+    <div class="toolbar">
+      <div><h3>Detalle de clubes implementados</h3><small>Corresponde a las IE que respondieron “Sí” en la pregunta 3.2. Una fila por club.</small></div>
+      <button class="excel" id="exportClubes">Exportar Excel</button>
+    </div>
+    <div class="tablewrap club-table"><table id="tableClubes"></table></div>
+  </article>
 
   <article class="card">
     <div class="toolbar">
@@ -79,19 +102,42 @@
   <div id="section4content"></div>
 </section>
 
+
 <section id="asesor" class="panel">
   <div class="section green">
     <div class="num">A</div><div><h2>FICHA DEL DOCENTE ASESOR</h2><p>Resultados independientes de la ficha aplicada al docente asesor.</p></div>
   </div>
   <div id="kpiA" class="kpis four"></div>
+  <div class="tracking-grid-stable">
+    <article class="card">
+      <div class="toolbar"><div><h3>Avance de fichas del Docente Asesor por UGEL</h3><small>Meta referencial: clubes declarados por Director. Registro: fichas de asesor.</small></div><span class="chart-badge">Meta + registro + %</span></div>
+      <div class="total-strip">
+              <div><span>Meta clubes</span><b id="sumAMeta">—</b></div>
+              <div><span>Fichas asesor</span><b id="sumAReg">—</b></div>
+              <div><span>Pendientes</span><b id="sumAPend">—</b></div>
+              <div><span>Avance</span><b id="sumAPct">—</b></div>
+            </div>
+            <div class="tablewrap compact-table"><table id="tableMetaAsesor"></table></div>
+    </article>
+    <article class="card">
+      <div class="chart-head"><div><h3>Avance del Docente Asesor</h3><p>Fichas recibidas respecto de los clubes declarados.</p></div><span class="chart-badge">N + %</span></div>
+      <div class="chartbox"><canvas id="chartAvanceAsesor"></canvas></div>
+    </article>
+  </div>
   <div class="grid2">
     <article class="card"><h3>Inscripciones declaradas por UGEL</h3><div class="chartbox tall"><canvas id="chartAdvUgel"></canvas></div></article>
     <article class="card"><h3>Fichas por área del club</h3><div class="chartbox tall"><canvas id="chartAdvArea"></canvas></div></article>
   </div>
-  <article class="card">
-    <h3>Preguntas 4.1 a 4.8 de la ficha del asesor</h3>
-    <div id="advisorQuestions"></div>
-  </article>
+  <div class="advisor-q-grid">
+    <article class="card">
+      <h3>📋 Preguntas 4.1 a 4.9 de la ficha del asesor</h3>
+      <div id="advisorQuestions"></div>
+    </article>
+    <article class="card">
+      <div class="chart-head"><div><h3>📊 Respuestas Sí / No</h3><p>Cantidad y porcentaje por pregunta.</p></div><span class="chart-badge">N + %</span></div>
+      <div class="chartbox advisor-q-chart"><canvas id="advisorQChart"></canvas></div>
+    </article>
+  </div>
   <article class="card">
     <div class="toolbar"><h3>Detalle por institución educativa / club</h3><button class="excel" id="exportAsesor">Exportar Excel</button></div>
     <div class="tablewrap"><table id="tableAsesor"></table></div>
@@ -111,6 +157,6 @@
 </section>
 </main>
 
-<footer><b>Elaborado por el Equipo de Estadística y Monitoreo - OPP - DRELM</b><span><b>Fuente:</b> Monitoreo Clubes Escolares 2026</span></footer>
-<script src="app.js?v=20260914-03"></script>
+<footer><b>Elaborado por el Equipo de Estadística y Monitoreo - OPP - DRELM</b><span><b>Fuente:</b> Monitoreo Clubes Escolares 2026 · <b id="cutoffFooter">Corte: —</b></span></footer>
+<script src="app.js?v=20260914-076"></script>
 </body></html>
