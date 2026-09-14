@@ -81,3 +81,74 @@ main{padding:10px 1.8vw 24px}
 /* V7.6: cabecera limpia */
 .hero .brand{flex:1}
 .tabs{align-items:center}
+
+
+/* ===== V7.8: mantiene diseño anterior; agrega expandir/reducir y autocompletado ===== */
+.section{position:relative;padding-right:112px}
+.section-toggle{
+  margin-left:auto;align-self:center;flex:0 0 auto;
+  border:1px solid currentColor;background:rgba(255,255,255,.72);
+  color:inherit;border-radius:8px;padding:6px 9px;font-size:9px;font-weight:900;
+  cursor:pointer;white-space:nowrap
+}
+.section-toggle:hover{background:#fff}
+.section.is-collapsed{margin-bottom:10px}
+.section.is-collapsed .section-toggle{background:#fff}
+.ie-search{position:relative}
+.ie-suggestions{
+  position:absolute;left:0;right:0;top:100%;margin-top:3px;background:#fff;
+  border:1px solid #cbd8e6;border-radius:8px;box-shadow:0 10px 26px #17334d2b;
+  z-index:600;display:none;max-height:285px;overflow:auto;text-transform:none
+}
+.ie-suggestions.open{display:block}
+.ie-option{padding:8px 10px;border-bottom:1px solid #edf2f6;cursor:pointer;display:flex;gap:9px;align-items:flex-start}
+.ie-option:last-child{border-bottom:0}
+.ie-option:hover,.ie-option.active{background:#edf7fd}
+.ie-option-code{font-weight:900;color:#0b6d9c;min-width:58px}
+.ie-option-main{min-width:0}
+.ie-option-name{font-size:10px;font-weight:800;color:#203d58;white-space:normal}
+.ie-option-meta{font-size:8px;color:#71859a;margin-top:2px}
+.ie-empty{padding:10px;color:#71859a;font-size:9px;text-align:center}
+@media(max-width:650px){
+  .section{padding-right:10px;flex-wrap:wrap}
+  .section-toggle{margin-left:57px}
+}
+
+
+/* ===== V7.9: control discreto por flecha ===== */
+.section{padding-right:46px}
+.section-toggle{
+  width:28px!important;height:28px!important;min-width:28px!important;
+  padding:0!important;margin-left:auto!important;border-radius:50%!important;
+  border:1px solid rgba(30,80,120,.22)!important;
+  background:rgba(255,255,255,.88)!important;color:#285a78!important;
+  display:grid!important;place-items:center!important;
+  font-size:15px!important;font-weight:900!important;line-height:1!important;
+  box-shadow:0 1px 4px rgba(30,70,100,.08);
+}
+.section-toggle:hover{background:#fff!important;transform:translateY(-1px)}
+.section.is-collapsed .section-toggle{background:#fff!important}
+@media(max-width:650px){
+  .section{padding-right:8px}
+  .section-toggle{margin-left:auto!important}
+}
+
+
+/* ===== V8.0: acciones documentales superiores ===== */
+.top-doc-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.top-pdf-btn,.report-link{
+  height:30px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:8px;padding:0 11px;font-size:9px;font-weight:900;white-space:nowrap;
+  text-decoration:none;cursor:pointer
+}
+.top-pdf-btn{border:1px solid #cbdce8;background:#fff;color:#0b668f}
+.top-pdf-btn:hover{background:#eef7fc}
+.report-link{border:1px solid #0b78a5;background:#0b78a5;color:#fff}
+.report-link:hover{background:#08668e}
+@media(max-width:760px){
+  .tabs{flex-wrap:wrap}
+  .top-doc-actions{width:100%;margin-left:0;justify-content:flex-end}
+}
+@media print{
+  .top-doc-actions{display:none!important}
+}

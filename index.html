@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Clubes Escolares 2026 | DRELM</title>
-<link rel="stylesheet" href="styles.css?v=20260914-076">
+<link rel="stylesheet" href="styles.css?v=20260914-080">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
@@ -17,7 +17,7 @@
     <button class="tab active" data-tab="director">🏠 Director</button>
         <button class="tab" data-tab="asesor">🧑‍🏫 Docente asesor</button>
     <button class="tab" data-tab="ficha">📋 Ficha técnica</button>
-    <a class="report-link" href="documentos/Informe_Tecnico_Clubes_Escolares_2026.pdf" target="_blank" download>⬇ Descargar informe técnico</a>
+    <div class="top-doc-actions"><button class="top-pdf-btn" id="printTop">📄 Exportar PDF</button><a class="report-link" href="documentos/Informe_Tecnico_Clubes_Escolares_2026.pdf" target="_blank">📑 Informe técnico</a></div>
 </nav>
   <div class="filters">
     <label>🏢 UGEL<select id="fUgel"><option value="">Todas</option></select></label>
@@ -25,7 +25,7 @@
     <label>📚 Modalidad<select id="fModalidad"><option value="">Todas</option></select></label>
     <label>👥 Gestión<select id="fGestion"><option value="">Todas</option></select></label>
     <label>⚽ Área del club<select id="fArea"><option value="">Todas</option></select></label>
-    <label class="search">🔎 Institución educativa / código local<input id="fIE" placeholder="Buscar por nombre de IE o código local..."></label>
+    <label class="search ie-search">🔎 Institución educativa / código local<input id="fIE" autocomplete="off" placeholder="Buscar por nombre de IE o código local..."><div id="ieSuggestions" class="ie-suggestions" role="listbox"></div></label>
     <button id="clearFilters">🧹 Limpiar</button>
   </div>
 </div>
@@ -90,7 +90,7 @@
   <article class="card">
     <div class="toolbar">
       <div><h3>Detalle por institución educativa</h3><small>Incluye nombre del director; excluye teléfono y correo.</small></div>
-      <div class="actions"><button class="excel" id="exportIE">Exportar Excel</button><button class="pdf" id="printIE">Exportar PDF</button></div>
+      <div class="actions"><button class="excel" id="exportIE">Exportar Excel</button></div>
     </div>
     <div class="tablewrap"><table id="tableIE"></table></div>
   </article>
@@ -146,7 +146,6 @@
 
 <section id="ficha" class="panel">
   <div class="section blue"><div class="num">i</div><div><h2>FICHA TÉCNICA</h2><p>Criterios metodológicos del reporte.</p></div></div>
-  <article class="card report-card"><div><h3>Informe Técnico - Clubes Escolares 2026</h3><p>Análisis institucional de implementación, gestión, clubes declarados y ficha del docente asesor.</p></div><a class="report-download" href="documentos/Informe_Tecnico_Clubes_Escolares_2026.pdf" target="_blank" download>Descargar PDF</a></article>
   <article class="card method">
     <p><b>Unidad de análisis – Director:</b> registro de directivo e institución educativa según modalidad.</p>
     <p><b>Unidad de análisis – Asesor:</b> ficha de docente asesor.</p>
@@ -158,5 +157,5 @@
 </main>
 
 <footer><b>Elaborado por el Equipo de Estadística y Monitoreo - OPP - DRELM</b><span><b>Fuente:</b> Monitoreo Clubes Escolares 2026 · <b id="cutoffFooter">Corte: —</b></span></footer>
-<script src="app.js?v=20260914-076"></script>
+<script src="app.js?v=20260914-080"></script>
 </body></html>

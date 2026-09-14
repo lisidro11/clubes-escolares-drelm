@@ -1,20 +1,11 @@
-# Clubes Escolares 2026 – DRELM · Versión 4
+# Clubes Escolares 2026 - V8.0
 
-## Novedades
-- Nuevo módulo **Detalle de clubes**: una fila por cada club, con exportación a Excel.
-- Filtro **REI** integrado mediante código local usando `Redes Educativas.xlsx`.
-- Identificación de **Núcleo REI**.
-- **Fecha de corte visible** en cabecera y pie.
-- `ACTUALIZAR_TABLERO.bat` pregunta la fecha de corte en cada actualización y la recuerda para el siguiente corte.
-- El reporte público excluye DNI, teléfono y correo.
-
-## Actualización
-1. Coloque el Excel principal de Clubes Escolares en `input`.
-2. Mantenga `input/Redes Educativas.xlsx` para el cruce REI.
-3. Haga doble clic en `ACTUALIZAR_TABLERO.bat`.
-4. Escriba la fecha de corte o presione Enter para conservar la anterior.
-5. Confirme con S.
-6. El BAT genera los JSON, crea commit y hace push.
-
-## URL
-https://lisidro11.github.io/clubes-escolares-drelm/
+Cambios:
+- Se mantiene el diseño V7.9.
+- Exportar PDF se mueve a la parte superior.
+- En la parte superior quedan solo dos acciones documentales: Exportar PDF e Informe técnico.
+- Informe técnico revisado desde el enfoque de Estadística y Monitoreo.
+- El informe diferencia cobertura del monitoreo de implementación reportada.
+- Se incorpora seguimiento de meta, locales registrados, pendientes y avance por UGEL.
+- Se mantienen flechas expandir/reducir, leyendas completas, buscador, REI, filtros y cálculos.
+- Corte: 09/09/2026.
